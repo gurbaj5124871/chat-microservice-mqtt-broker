@@ -1,0 +1,23 @@
+{
+  "name": "thor",
+  "version": "1.0.0",
+  "description": "MQTT broker for chat",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Gurbaj Singh",
+  "license": "ISC",
+  "dependencies": {
+    "aedes": "^0.38.0",
+    "bluebird": "^3.5.5",
+    "cassandra-driver": "^4.1.0",
+    "confidence": "^4.0.2",
+    "jsonwebtoken": "^8.5.1",
+    "mongodb": "^3.2.6",
+    "mqemitter-redis": "^3.0.0",
+    "redis": "^2.8.0",
+    "websocket-stream": "^5.5.0",
+    "winston": "^2.4.0"
+  }
+}

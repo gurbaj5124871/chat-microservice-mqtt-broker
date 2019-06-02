@@ -13,7 +13,7 @@ module.exports =  aedes => {
     aedes.on('publish', clientPublished);
     aedes.on('subscribe', clientSubscribed);
     aedes.on('unsubscribe', clientUnsubscribed);
-
+    // aedes.on('ack', function (packet, client) {})
 
     function clientConnected (client) {
         logger.info('client connected', client.id);

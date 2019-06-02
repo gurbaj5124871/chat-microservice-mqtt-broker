@@ -9,7 +9,7 @@ module.exports = aedes => {
     aedes.authenticate = authenticateClient;
     aedes.authorizeSubscribe = authoriseSubscribe;
     aedes.authorizePublish = authorisePublish;
-
+    // aedes.authorizeForward = function () {}
 
     async function authenticateClient (client, username, password, callback) {
         try {

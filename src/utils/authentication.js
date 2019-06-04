@@ -1,34 +1,29 @@
 const bluebird          = require('bluebird'), 
     jwt                 = bluebird.promisifyAll(require('jsonwebtoken')),
-    // sessions            = require('./sessions'),
-    config              = require('../../app-config'),
-    errify              = require('./errify');
+    sessions            = require('./sessions'),
+    config              = require('../../app-config');
 
 const secret            = config.get('/jwt/secret')
 
-const verifyToken       = async (req, res, next) => {
-    // let token           = req.headers.authorization;
-    // if(token)           {
-    //     try             {
-    //         token       = token.split(' ')
-    //         if(token.length !== 2 && token[0].toLowerCase() !== 'bearer')
-    //             throw errify.unauthorized('Token Expired', '1052')
-    //         else token  = token[1]
-    //         try         {
-    //             const decode    = await jwt.verifyAsync(token, secret)
-    //             const session   = (await sessions.getSessionFromToken(decode))[0]
-    //             if(!session)
-    //                 throw errify.unauthorized('Token Expired', '1052')
-    //             req.user= Object.assign(decode, JSON.parse(session))
-    //             next()
-    //         } catch(err){
-    //             try {await sessions.expireSessionFromToken(jwt.decode(token, {json: true, complete: true}))} catch(err) {}
-    //             throw errify.unauthorized('Token Expired', '1052')
-    //         }
-    //     } catch (err)   {
-    //         next(err)
-    //     }
-    // } else next(errify.unauthorized('Token Expired', '1052'))
+const verifyToken       = async token => {
+        try             {
+            token       = token.split(' ')
+            if(token.length !== 2 && token[0].toLowerCase() !== 'bearer')
+                throw new Error('Token Expired')
+            else token  = token[1]
+            try         {
+                const decode    = await jwt.verifyAsync(token, secret)
+                const session   = (await sessions.getSessionFromToken(decode))[0]
+                if(!session)
+                    throw new Error('Token Expired')
+                return Object.assign(decode, JSON.parse(session))
+            } catch(err){
+                try {await sessions.expireSessionFromToken(jwt.decode(token, {json: true, complete: true}))} catch(err) {}
+                throw new Error('Token Expired')
+            }
+        } catch (err)   {
+            throw err
+        }
 }
 
 const verifyTokenIfExists   = async (req, res, next) => {

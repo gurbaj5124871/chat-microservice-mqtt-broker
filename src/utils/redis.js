@@ -1,9 +1,10 @@
 const redis                 = require('../../bootstrap/redis').redisClient;
 
 const redisKeys             = Object.freeze({
-
-    // Sorted Set storing verified business types [score, value]
-    businessTypes           : `businessTypes:`,
+    // Map containing user Ids as key and platform specific client Ids as value
+    // Never Expire
+    // Cleared on broker restart
+    getActiveMqttUsersMapKey: 'usersMQTT',
 
     // Hash map storing customers sessions [ NEVER EXPIRE ON PROD] {key : {sessionId: session}}
     customerSession         : customerId => `customerSession:${customerId}`,
@@ -12,10 +13,7 @@ const redisKeys             = Object.freeze({
     serviceProviderSession  : serviceProviderId => `serviceProviderSession:${serviceProviderId}`,
 
     // Hash map storing admins sessions {key : {sessionId: session}}
-    adminSession            : adminId => `adminSession:${adminId}`,
-
-    // key value which should have expiration
-    customerPhoneVerification: phoneNumber => `customerPhoneVerification:${phoneNumber}`,
+    adminSession            : adminId => `adminSession:${adminId}`
     
     
 })

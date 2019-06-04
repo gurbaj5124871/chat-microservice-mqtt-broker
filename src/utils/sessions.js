@@ -1,5 +1,4 @@
 const {redis, redisKeys}            = require('./redis'),
-    ObjectId                        = require('./mongo').getObjectId,                   
     constants                       = require('./constants');
 
 function getSessionKey(userId, role){
@@ -12,13 +11,6 @@ function getSessionKey(userId, role){
         }
     })(role);
     return sessionkey          
-}
-
-const createSession                 = async (userId, role, roles, platform, deviceToken, appVersion) => {
-    const sessionkey                = getSessionKey(userId, role)
-    const sessionId                 = ObjectId().toHexString()
-    await redis.hmsetAsync(sessionkey, sessionId, JSON.stringify({userId, sessionId, role, roles, platform, deviceToken, appVersion}))
-    return sessionId
 }
 
 const getSessionFromToken           = tokenData => {
@@ -68,7 +60,6 @@ const expireAllSessionsOfBatchUsers= (userIds, role) => {
 }
 
 module.exports                      = {
-    createSession,
     getSessionFromToken,
     getAllSessionsFromUserId,
     getAllSessionsForUsers,

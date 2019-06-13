@@ -1,4 +1,5 @@
 'use strict';
+
 const {redis, redisKeys}        = require('../utils/redis');
 const {monogdb, collections}    = require('../utils/mongo');
 const constants                 = require('../utils/constants');
@@ -16,7 +17,7 @@ const getPlatformAndUserTypeAndIdFromClientId = clientId => {
 
 const isClientActive            = async (clientId) => {
     const {userId, platform}    = getPlatformAndUserTypeAndIdFromClientId(clientId);
-    const userConnectionData    = JSON.parse(await redis.hget(redisKeys.getActiveMqttUsersMapKey(), userId));
+    const userConnectionData    = JSON.parse(await redis.hget(redisKeys.getActiveMqttUsersMapKey, userId));
     return userConnectionData   !== null && userConnectionData[platform] !== undefined;
 };
 

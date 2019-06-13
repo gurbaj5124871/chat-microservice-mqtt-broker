@@ -1,5 +1,5 @@
 module.exports          = Object.freeze({
-    baseTopics       : {
+    baseTopics          : {
         chat            : 'chat',
         microservice    : 'microservice'
     },

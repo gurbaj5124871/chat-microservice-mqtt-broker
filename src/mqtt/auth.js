@@ -5,6 +5,7 @@ const validator     = require('./validator'),
     utils           = require('./utils'),
     logger          = require('../utils/logger'),
     authentication  = require('../utils/authentication'),
+    microservices   = require('./microservices'),
     constants       = require('../utils/constants');
 
 module.exports                  = aedes => {
@@ -15,14 +16,23 @@ module.exports                  = aedes => {
 
     async function authenticateClient (client, username, password, callback) {
         try {
-            const authenticatedClient = await authentication.verifyToken(password.toString());
-            const senderId      = utils.getUserIdFromClientId(client.id);
-            const clientIdValid = senderId === authenticatedClient.userId && senderId === username;
-            const clientActive  = await utils.isClientActive(client.id);
-            if (clientIdValid && clientActive)
-                sendDisconnectPublish(client.id);
-            callback(null, clientIdValid);
+            if(microservices.microservicesConfig.microservices.includes(client.id) === true) {
+                password = password.toString()
+                const msCreds   = microservices.microservicesConfig[client.id] || {}
+                if(msCreds.username !== username || msCreds.password !== password.toString())
+                    return callback(null, false)
+                else callback(null, true)
+            } else {
+                const authenticatedClient = await authentication.verifyToken(password.toString());
+                const senderId      = utils.getUserIdFromClientId(client.id);
+                const clientIdValid = senderId === authenticatedClient.userId && senderId === username;
+                const clientActive  = await utils.isClientActive(client.id);
+                if (clientIdValid && clientActive)
+                    sendDisconnectPublish(client.id);
+                callback(null, clientIdValid);
+            }
         } catch (err) {
+            
             logger.warn(err);
             callback(null, false);
         }
@@ -32,7 +42,7 @@ module.exports                  = aedes => {
         try {
             const topicStructure= subscription.topic.split('/');
             const topLevelTopic = topicStructure[0]
-            if(topics.getBaseTopics.values().includes(topLevelTopic) === false)
+            if(Object.values(topics.baseTopics).includes(topLevelTopic) === false)
                 return unauthorisedSubscribe(client, callback)
             else {
                 switch(topLevelTopic) {
@@ -55,14 +65,16 @@ module.exports                  = aedes => {
             }
 
             async function authMicroservicesSubscriptions(client, subscription, callback) {
-                callback(null, subscription)
+                const microserviceTopic = topicStructure[1]
+                if(microserviceTopic !== client.id)
+                    return unauthorisedSubscribe(client, callback)
+                else callback(null, subscription)
             }
 
             function unauthorisedSubscribe(client, callback) {
                 logger.warn(client.id + ' Tried to subscribe to unauthorised topic ' + subscription.topic);
                 return callback(null, null)
             }
-
         } catch (err) {
             callback(err);
         }

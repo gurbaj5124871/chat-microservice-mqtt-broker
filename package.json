@@ -13,10 +13,10 @@
     "bluebird": "^3.5.5",
     "cassandra-driver": "^4.1.0",
     "confidence": "^4.0.2",
+    "ioredis": "^4.10.0",
     "jsonwebtoken": "^8.5.1",
     "mongodb": "^3.2.6",
     "mqemitter-redis": "^3.0.0",
-    "redis": "^2.8.0",
     "websocket-stream": "^5.5.0",
     "winston": "^2.4.0"
   }

@@ -1,23 +1,14 @@
 const Promise           = require('bluebird'),
-    redis               = require('redis'),
+    redis               = require('ioredis'),
     logger              = require('../src/utils/logger'),
-    config              = require('../app-config');
+    config              = require('../config');
 
-Promise.promisifyAll(redis.RedisClient.prototype)
-Promise.promisifyAll(redis.Multi.prototype)
+redis.Promise           = Promise
 
 if(process.env.redisDebug == true)
-redis.debug_mode         = true;
+redis.debug_mode        = true;
 
-const url                = config.get('/redis');
-const redisClient        = redis.createClient({
-    url,
-    connect : opts => {
-        if (opts.error && opts.error.code === 'ECONNREFUSED') {
-            return rej(new Error('The server refused the connection'))
-        }
-    }
-})
+const redisClient       = new redis(config.get('/redis'))
 
 redisClient.on('connect', () => {
     logger.info(`Flash (redis) connected`)

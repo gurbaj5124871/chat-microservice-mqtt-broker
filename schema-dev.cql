@@ -29,7 +29,7 @@ CREATE MATERIALIZED VIEW conversations_by_time AS
     WITH CLUSTERING ORDER BY (last_message_id DESC);
 
 -- for getting single conversation
-CREATE MATERIALIZED VIEW conversations_by_pair AS
+CREATE MATERIALIZED VIEW conversation_by_pairs AS
     SELECT * FROM conversations 
     WHERE conversation_id IS NOT NULL AND user_id IS NOT NULL AND other_user_id IS NOT NULL AND conversation_type = 'single'
     PRIMARY KEY ((user_id, other_user_id), conversation_type, conversation_id);

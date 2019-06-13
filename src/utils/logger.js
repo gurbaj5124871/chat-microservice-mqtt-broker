@@ -1,5 +1,5 @@
 const winston   = require("winston"),
-      config    = require('../../app-config');
+      config    = require('../../config');
 
 const level     = config.get('/winston');
 

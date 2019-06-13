@@ -1,5 +1,5 @@
 const mongoClient   = require('mongodb').MongoClient,
-      mongoConfig   = require('../app-config').get('/mongodb'),
+      mongoConfig   = require('../config').get('/mongodb'),
       logger        = require('../src/utils/logger');
 
 let [mongo, db]     = [null, null]

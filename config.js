@@ -64,7 +64,7 @@ const config            = {
         test            : {keyspace: 'dhandahub_chat', contactPoints: ['localhost'], localDataCenter: 'datacenter1'},
         prod            : {
                             keyspace: 'dhandahub_chat', user: 'chat', password: 'tTyGQTMqTFkkQeA',
-                            contactPoints: ["thor1.dhandahub.com", "thor2.dhandahub.com"], localDataCenter: 'ap-south'
+                            contactPoints: ["batman1.dhandahub.com", "batman2.dhandahub.com"], localDataCenter: 'ap-south'
                             
         },
         $default        : {keyspace: 'dhandahub_chat', contactPoints: ['localhost'], localDataCenter: 'datacenter1'}

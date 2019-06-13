@@ -1,7 +1,7 @@
 const bluebird          = require('bluebird'), 
     jwt                 = bluebird.promisifyAll(require('jsonwebtoken')),
     sessions            = require('./sessions'),
-    config              = require('../../app-config');
+    config              = require('../../config');
 
 const secret            = config.get('/jwt/secret')
 

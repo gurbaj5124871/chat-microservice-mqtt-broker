@@ -45,6 +45,7 @@ module.exports =  aedes => {
 
     async function clientPublished (packet, client) {
         if (client !== null) {
+            console.log('client published', client.id, packet)
             logger.debug('client published', client.id, packet);
             const topicStructure = packet.topic.split('/');
         }

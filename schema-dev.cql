@@ -14,7 +14,7 @@ CREATE TABLE conversations (
     last_message_content TEXT,
     last_message_sender_id TEXT,
     last_message_type TEXT,
-    is_blocked BOOLEAN, -- for single conversations, in case of channel customer's row will be deleted
+    is_blocked BOOLEAN, -- for single conversations, other user blocked user, in case of unfollow all conversations of cp will be blocked
     is_muted BOOLEAN, -- notifications turned off, only for channel and group conversations
     is_deleted BOOLEAN, -- This is when sp deletes group, convo will exists for cps but can't message in them
     image_url TEXT,
@@ -31,7 +31,7 @@ CREATE MATERIALIZED VIEW conversations_by_time AS
 -- for getting single conversation
 CREATE MATERIALIZED VIEW conversation_by_pairs AS
     SELECT * FROM conversations 
-    WHERE conversation_id IS NOT NULL AND user_id IS NOT NULL AND other_user_id IS NOT NULL AND conversation_type = 'single'
+    WHERE conversation_id IS NOT NULL AND user_id IS NOT NULL AND other_user_id IS NOT NULL AND conversation_type IS NOT NULL
     PRIMARY KEY ((user_id, other_user_id), conversation_type, conversation_id);
 
 CREATE TABLE message (

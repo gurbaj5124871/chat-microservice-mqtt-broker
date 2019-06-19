@@ -13,7 +13,9 @@ const redisKeys             = Object.freeze({
     serviceProviderSession  : serviceProviderId => `serviceProviderSession:${serviceProviderId}`,
 
     // Hash map storing admins sessions {key : {sessionId: session}}
-    adminSession            : adminId => `adminSession:${adminId}`
+    adminSession            : adminId => `adminSession:${adminId}`,
+
+    userNotificationCount   : userId => `userNotificationCount:${userId}`
     
     
 })

@@ -1,8 +1,9 @@
 'use strict';
 
-const {redis, redisKeys}        = require('../utils/redis');
-const {monogdb, collections}    = require('../utils/mongo');
-const constants                 = require('../utils/constants');
+const {redis, redisKeys}        = require('../utils/redis'),
+    mongoCollections            = require('../utils/mongo'),
+    constants                   = require('../utils/constants'),
+    universalFunc               = require('../utils/universal-functions');
 
 const getUserTypeFromClientId   = clientId => clientId.split('-')[0];
 
@@ -21,14 +22,10 @@ const isClientActive            = async (clientId) => {
     return userConnectionData   !== null && userConnectionData[platform] !== undefined;
 };
 
-const doesSubscriberHasTopic    = async (userType, userId, platform, topic) => {
-    const collection            = (userType => {
-        switch(userType)        {
-            case constants.userRoles.customer       : return collections.customermqtts;
-            case constants.userRoles.serviceProvider: return collections.serviceprovidermqtts;
-        }
-    })(userType);
-    const dbTopic               = await monogdb.collection(collection).findOne({userId, topic}, {_id: 1})
+const doesSubscriberHasTopic    = async (userType, userId, topic) => {
+    const userKey               = userType === constants.userRoles.customer ? 'customerId' : 'serviceProviderId'
+    const criteria              = {[userKey]: universalFunc.mongoUUID(userId), mqttTopics: topic, isDeleted: false}
+    const dbTopic               = await mongodb.collection(mongoCollections.followings).findOne(criteria, {_id: 1})
     return dbTopic ? true : false
 }
 

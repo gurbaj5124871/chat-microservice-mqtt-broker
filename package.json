@@ -9,6 +9,7 @@
   "author": "Gurbaj Singh",
   "license": "ISC",
   "dependencies": {
+    "@hapi/joi": "^15.0.3",
     "aedes": "^0.38.0",
     "bluebird": "^3.5.5",
     "cassandra-driver": "^4.1.0",

@@ -1,7 +1,11 @@
 'use strict';
 
-const logger = require('../utils/logger'),
-    auth = require('./auth');
+const auth          = require('./auth'),
+    logger          = require('../utils/logger'),
+    userServices    = require('../services/userServices'),
+    chatServices    = require('../services/chatServices'),
+    mqttUtils       = require('./utils'),
+    topics          = require('./topics');
 
 module.exports =  aedes => {
     auth(aedes);
@@ -16,23 +20,13 @@ module.exports =  aedes => {
     // aedes.on('ack', function (packet, client) {})
 
     function clientConnected (client) {
-        logger.info('client connected', client.id);
-
-        // //TODO: deprecate
-        // if (userUtil.getPlatformFromClientId(client.id) === undefined)
-        //     return userHelper.addAsActiveUser(client.id + '-unknown');
-
-        // userHelper.addAsActiveUser(client.id);
+        logger.info('client connected', client.id)
+        userServices.addAsActiveUser(client.id)
     }
 
     function clientDisconnected (client) {
-        logger.info('client disconnected', client.id);
-
-        // //TODO: deprecate
-        // if (userUtil.getPlatformFromClientId(client.id) === undefined)
-        //     return userHelper.removeAsActiveUser(client.id + '-unknown');
-
-        // userHelper.removeAsActiveUser(client.id);
+        logger.info('client disconnected', client.id)
+        userServices.removeAsActiveUser(client.id)
     }
 
     function clientErred (client, err) {
@@ -45,9 +39,13 @@ module.exports =  aedes => {
 
     async function clientPublished (packet, client) {
         if (client !== null) {
-            console.log('client published', client.id, packet)
             logger.debug('client published', client.id, packet);
-            const topicStructure = packet.topic.split('/');
+            const topicStructure    = packet.topic.split('/');
+            if (topicStructure[0] === topics.baseTopics.chat) {
+                const senderId      = mqttUtils.getUserIdFromClientId(client.id)
+                const conversationType = topicStructure[1]
+                chatServices.newMessageReceived(JSON.parse(packet.payload), senderId, conversationType);
+            }
         }
     }
 

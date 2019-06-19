@@ -1,14 +1,14 @@
+'use strict'
+
 const mongoClient   = require('mongodb').MongoClient,
       mongoConfig   = require('../config').get('/mongodb'),
       logger        = require('../src/utils/logger');
 
-let [mongo, db]     = [null, null]
 const connectMongo  = async () => {
     const mongoURI  = mongoConfig.url, dbName = mongoConfig.db;
-    mongo           = await mongoClient.connect(mongoURI, {useNewUrlParser: true})
-    db              = mongo.db(dbName)
+    const mongo     = await mongoClient.connect(mongoURI, {useNewUrlParser: true})
     logger.info(`Captain America (Mongo DB) connected`)
-    return true
+    global.mongodb  = mongo.db(dbName)
 }
 
-module.exports = {connectMongo, db}
+module.exports = {connectMongo}

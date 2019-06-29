@@ -89,7 +89,7 @@ const config            = {
     redisPubSub         : {
         $filter         : 'env',
         dev             : {port: 6379, host: '127.0.0.1', db: 2},
-        test            : {port: 6379, host: '127.0.0.1', password: 'password', db: 2},
+        test            : {port: 6379, host: '127.0.0.1', db: 2},
         prod            : {port: 6379, host: '127.0.0.1', password: 'password', db: 2},
         $default        : {port: 6379, host: '127.0.0.1', db: 2}
     }

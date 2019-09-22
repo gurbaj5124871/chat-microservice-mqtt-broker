@@ -36,14 +36,15 @@ async function updateConversations(conversationId, messageId, content, messageTy
             return result
         }, {filteredUsers: [], unmutedUsers: new Set()})
         unmutedUsers.delete(senderId)
-        const updateConversation= `UPDATE conversations SET last_message_id = ?, last_message_content = ?, 
-            last_message_type = ?, last_message_sender_id = ? WHERE conversation_id = ? AND user_id IN ? AND conversation_type = ?`;
+        const updateConversation= `UPDATE conversations SET last_message_id = ?, last_message_content = ?, last_message_type = ?,
+            last_message_sender_id = ? WHERE conversation_id = ? AND user_id IN ? AND conversation_type = ?`;
         const messUpdateparams  = [messageId, content, messageType, senderId, conversationId, filteredUsers, conversationType]
         await cassandra.execute(updateConversation, messUpdateparams, {prepare: true})
+        // update user's conversation unread count and send notificaitons
         await updateUnreadCount(conversationId, filteredUsers)
         handleNotifications(senderId, [...unmutedUsers], conversationType)
         if(users.pageState !== null)
-            await updateConversationsWithUnreadCount(conversationId, messageId, content, messageType, senderId, conversationType, users.pageState)
+            await updateConversations(conversationId, messageId, content, messageType, senderId, conversationType, users.pageState)
     }
 }
 

@@ -80,7 +80,37 @@ const isConversationBlocked     = async (payload, userId) => {
     return result.rowLength ? (result.rows[0].is_blocked ? true : false) : true
 }
 
+const handleMessageAcknowledgement = async (packet, senderId, conversationType, publish) => {
+    try {
+        const {conversation_id: conversationId, message_id: messageId} = packet.payload
+        const query             = `INSERT INTO message_acknowledgement_status (conversationId, messsage_id, user_id, is_delivered) VALUES (?, ?, ?, ?)`;
+        await cassandra.execute(query, [conversationId, messageId, senderId, true])
+        if(conversationType === constants.conversationTypes.single)
+            publishMessageAckToSenderForSingleChat(conversationId, messageId, senderId, publish)
+        else publishMessageAckToSenderForBroadcastChats(packet.topic, conversationId, conversationType, messsageId, senderId, publish)
+    } catch (err) {
+        logger.error(err)
+    }
+}
+
+async function publishMessageAckToSenderForSingleChat (conversationId, messageId, senderId, publish) {
+    const query                 = `SELECT other_user_id FROM conversations WHERE conversation_id = ? AND user_id = ?`
+    const otherUser             = await cassandra.execute(query, [conversationId, senderId], {prepare: true})
+    const otherUserId           = otherUser.rows[0].other_user_id
+    const topic                 = `chat/single/${otherUserId}/messageAck`
+    const payload               = JSON.stringify({data: {conversation_id: conversationId, message_id: messageId, sender_id: senderId}})
+    publish({topic, payload}, null)
+}
+
+async function publishMessageAckToSenderForBroadcastChats (topic, conversationId, conversationType, messageId, senderId, publish) {
+    const topicStucture         = topic.split('/')
+    const publishTopic          = `chat/${conversationType}/${topicStucture[2]}/messageAck`
+    const payload               = JSON.stringify({data: {conversation_id: conversationId, message_id: messageId, sender_id: senderId}})
+    publish({publishTopic, payload}, null)
+}
+
 module.exports                  = {
     newMessageReceived,
-    isConversationBlocked
+    isConversationBlocked,
+    handleMessageAcknowledgement
 }

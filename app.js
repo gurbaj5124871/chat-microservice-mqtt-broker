@@ -29,6 +29,6 @@ cassandra.connect(async err => {
 
     wsServer.listen(wsPort, () => {logger.info('Thor websocket server listening on port', wsPort)});
     server.listen(port, () => logger.info('Thor server listening on port', port));
-
+    
     handler(aedes);
 });

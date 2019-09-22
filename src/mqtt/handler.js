@@ -4,6 +4,7 @@ const auth          = require('./auth'),
     logger          = require('../utils/logger'),
     userServices    = require('../services/userServices'),
     chatServices    = require('../services/chatServices'),
+    constants       = require('../utils/constants'),
     mqttUtils       = require('./utils'),
     topics          = require('./topics');
 
@@ -17,16 +18,19 @@ module.exports =  aedes => {
     aedes.on('publish', clientPublished);
     aedes.on('subscribe', clientSubscribed);
     aedes.on('unsubscribe', clientUnsubscribed);
-    // aedes.on('ack', function (packet, client) {})
+    aedes.on('ack', clientAcknowledged);
 
-    function clientConnected (client) {
+
+    async function clientConnected (client) {
         logger.info('client connected', client.id)
-        userServices.addAsActiveUser(client.id)
+        await userServices.addAsActiveUser(client.id)
+        await userServices.updateLastSeen('App Opened',client.id)
     }
 
-    function clientDisconnected (client) {
+    async function clientDisconnected (client) {
         logger.info('client disconnected', client.id)
-        userServices.removeAsActiveUser(client.id)
+        await userServices.removeAsActiveUser(client.id)
+        await userServices.updateLastSeen('App Closed',client.id)
     }
 
     function clientErred (client, err) {
@@ -38,7 +42,7 @@ module.exports =  aedes => {
     }
 
     async function clientPublished (packet, client) {
-        if (client !== null) {
+        if (client) {
             logger.debug('client published', client.id, packet);
             const topicStructure    = packet.topic.split('/');
             if (topicStructure[0] === topics.baseTopics.chat) {
@@ -55,5 +59,21 @@ module.exports =  aedes => {
 
     function clientUnsubscribed (unsubscriptions, client) {
         logger.info('client unsubscribed', client.id, unsubscriptions);
+    }
+
+    async function clientAcknowledged (packet, client) {
+        try {
+            if (client) {
+                logger.debug('client acknowledged', client.id, packet)
+                if(packet) {
+                    packet.payload  = JSON.parse(packet.payload)
+                    const senderId  = mqttUtils.getUserIdFromClientId(client.id)
+                    const conversationType = packet.payload.conversation_type
+                    chatServices.handleMessageAcknowledgement(packet, senderId, conversationType, aedes.publish)
+                }
+            }
+        } catch (err) {
+            logger.error(err)
+        }
     }
 };

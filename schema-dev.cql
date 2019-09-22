@@ -39,6 +39,7 @@ CREATE TABLE message (
     conversation_id TIMEUUID,
     content TEXT,
     sender_id TEXT,
+    sender_type TEXT,
     message_type TEXT,
     is_deleted BOOLEAN,
     reply_message_id TIMEUUID,
@@ -54,16 +55,19 @@ CREATE TABLE unread_count (
 );
 
 CREATE TABLE message_acknowledgement_status (
-    messsage_id TIMEUUID,
+    message_id TIMEUUID,
     conversation_id TIMEUUID,
-    user_id TIMEUUID,
+    user_id TEXT,
     is_delivered BOOLEAN,
     is_seen BOOLEAN,
-    PRIMARY KEY (conversation_id, messsage_id, user_id)
-) WITH CLUSTERING ORDER BY (messsage_id DESC);
+    PRIMARY KEY (conversation_id, message_id, user_id)
+) WITH CLUSTERING ORDER BY (message_id DESC);
 
 CREATE TABLE last_seen (
-    user_id TIMEUUID,
+    user_id TEXT,
+    user_type TEXT,
+    platform TEXT,
     last_seen TIMESTAMP,
+    last_seen_event TEXT,
     PRIMARY KEY (user_id, last_seen)
 ) WITH CLUSTERING ORDER BY (last_seen DESC);

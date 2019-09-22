@@ -1,6 +1,7 @@
 'use strict'
 
 const {redis, redisKeys}    = require('../utils/redis'),
+    cassandra               = require('../../bootstrap/cassandra').client,
     mqttUtils               = require('../mqtt/utils');
 
 const addAsActiveUser       = async clientId => {
@@ -24,7 +25,15 @@ const removeAsActiveUser    = async clientId => {
         return redis.hset(userMqttKey, userId, JSON.stringify(userConnectionData))
 };
 
+const updateLastSeen        = async (event, clientId) => {
+    const {userType, userId, platform} = mqttUtils.getPlatformAndUserTypeAndIdFromClientId(clientId);
+    const query             = `INSERT INTO last_seen (user_id, user_type, platform, last_seen, last_seen_event) VALUES (?, ?, ?, ?, ?)`;
+    const params            = [userId, userType, platform, new Date(), event]
+    await cassandra.execute(query, params, {prepare: true})
+}
+
 module.exports              = {
     addAsActiveUser,
-    removeAsActiveUser
+    removeAsActiveUser,
+    updateLastSeen
 }
